@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}categories{% endblock %}
+
+{% block body %}
+
+<div class="container"></h1> <br></br>
+    <h1>Catégories</h1> <br></br>
+
+    {% include 'layouts/_flash_message.html.twig' %}
+    <table class="table">
+        <tr>
+            <th>id</th>
+            <th>nom de la categorie</th>
+            <th>actions</th>
+        </tr>
+        {% for category in categories %}
+            <tr>
+                <td>{{ category.id }}</td>
+                <td>{{ category.name }}</td>
+                <td>
+                    <a href="{{ path('app_category_update', {'id':category.id}) }}">Modifier</a>
+                    <a href="{{ path('app_category_delete',{'id':category.id})}}" class="text-danger">Supprimer</a>
+                </td>
+            </tr>
+            {%else%}
+            <p>Aucune categorie à afficher pour l'instant</p>
+        {% endfor %}
+
+    </table>
+        <br>
+        <a class="btn btn-outline-primary" href="{{ path('app_category_new')}}">Ajouter une categorie</a>
+</div>
+{% endblock %}
+
+

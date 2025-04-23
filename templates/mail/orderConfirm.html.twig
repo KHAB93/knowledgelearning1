@@ -1,0 +1,49 @@
+<style>
+    table{
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td{
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    thead{
+        background: #f2f2f2;
+    }
+
+    tbody tr :nth-child(odd){
+        background: #f9f9f9;
+    }
+
+</style>
+
+<div class="container">
+        <h1>Confirmation de reception de la commande</h1>
+
+        <p>Nous avons bien reçu votre commande et nous vous en remercions.</p>
+
+            <h5>Détail de la commande</h5> <br>
+            <table class="table table-bordered">
+                <thead>
+                    <th>Nom du produit</th>
+                    <th>Prix unitaire</th>
+                    <th>quantité</th>
+                    <th>prix total</th>
+                </thead>
+
+                {% for product in order.orderProducts %}
+                    <tr>
+                        <td> {{ product.product.name }}</td>
+                        <td> {{ product.product.price }}Eur</td>
+                        <td> {{ product.qte }}</td>
+                        <td> {{ product.product.price*product.qte }}Eur</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <br><br><br>
+            <h5>Frais de livraison : {{ order.city.shippingCost }}Eur</h5>
+            <hr></hr>
+            <h2>Total à payer : {{ order.totalPrice }}Eur</h2>
+       </div>
+

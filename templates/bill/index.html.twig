@@ -1,0 +1,67 @@
+<style>
+    table{
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td{
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    thead{
+        background: #f2f2f2;
+    }
+
+    tbody tr :nth-child(odd){
+        background: #f9f9f9;
+    }
+
+</style>
+
+<div class="container">
+    
+    <h2>Facture n:{{ order.id }}</h2>
+    <hr></hr>
+            <span>Date: {{ order.createdAt|date }} </span>
+            <br><br><br>
+            <h5>Informations du client</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <th>Nom</th>
+                    <th>Prenom</th>
+                    <th>Telephone</th>
+                    <th>Adresse</th> 
+                    <th>Ville</th>
+                <thead>
+                <tr>
+                    <td>{{ order.firstName }}</td>
+                    <td>{{ order.lastName }}</td>
+                    <td>{{ order.phone }}</td>
+                    <td>{{ order.adresse }}</td>
+                    <td>{{ order.city.name }}</td>
+                </tr>
+            </table>
+            <h5>Corps de la commande</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <th>Nom du produit</th>
+                    <th>Prix unitaire</th>
+                    <th>quantité</th>
+                    <th>prix total</th>
+                </thead>
+
+                {% for product in order.orderProducts %}
+                    <tr>
+                        <td> {{ product.product.name }}</td>
+                        <td> {{ product.product.price }}Eur</td>
+                        <td> {{ product.qte }}</td>
+                        <td> {{ product.product.price*product.qte }}Eur</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <br><br><br>
+            <h5>Frais de livraison : {{ order.city.shippingCost }}Eur</h5>
+            <hr></hr>
+            <h2>Total à payer : {{ order.totalPrice }}Eur</h2>
+       </div>
+

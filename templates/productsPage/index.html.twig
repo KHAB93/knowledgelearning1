@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boutique{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Produits</h1>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <img src="{{ asset('uploads/images/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+
+                            <a style="text-decoration: none; color: black" href="{{ path('app_home_page_product_show',{'id':product.id}) }}"> 
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            </a>
+
+                            
+                            <p class="card-text">{{ product.description|slice(0, 60) ~ '...' }}</p>
+                            <p class="card-text fw-bold">{{ product.price }} €</p>
+                            <a href="{{ path('app_cart_new', {id: product.id}) }}" class="btn btn-success">Ajouter au panier</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>Aucun produit trouvé.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

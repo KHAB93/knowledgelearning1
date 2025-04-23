@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title%} accueil {%endblock%}
+
+{% block body%} 
+
+<div class="card mb-12" style="margin-top: 70px">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{ asset('uploads/images/'~product.image) }}" class="img-fluid rounded-start" alt="...">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h1 class="card-title">{{ product.name }}</h1>
+        <p class="card-text">{{product.description}}</p>
+        <p class="card-text fw-bold">{{ product.price }} €</p>
+        <a href="{{ path('app_cart_new',{'id':product.id}) }}" class="text-success text-decoration-none">Ajouter au panier</a>
+
+    <div class="mb-3">
+        <label for="size" class="form-label">Choisissez une taille :</label>
+        <select name="size" id="size" class="form-select">
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+        </select>
+    </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>Derniers produits ajoutés</h2>
+
+
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-3"> 
+                <div class="card" style="width: 18rem;">
+                    <img src="{{ asset('uploads/images/'~product.image) }}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <a style="text-decoration: none; color: black" href="{{ path('app_home_page_product_show',{'id':product.id}) }}"></a>
+                        <p class="card-text">{{ product.description|slice(0,60) }} ..</p>
+                        <a href="{{ path('app_cart_new',{'id':product.id}) }}" class="text-success text-decoration-none">Ajouter au panier</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

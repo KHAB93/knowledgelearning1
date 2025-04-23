@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello OrderController!{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+            <h1>Paiement</h1>
+
+                {{ form_start(form, {"attr": {'data-turbo': 'false'}}) }}
+                    {{ form_widget(form)}}
+                    
+                    <input type="submit" value="continuer" class="btn btn-outline-primary">
+
+                {{ form_end(form) }}
+            </div>
+            <div class="col-4"> <br><br><br><br>
+            <span>Montant à payer:</span>
+            <h2><span id="card-price">{{ total }}</span>
+             Eur
+             </h2>
+            <span>Frais de livraison</span>
+            <h2>
+            <span id="shippingCost"></span>
+            Eur
+            </h2>
+            <span>Montant total à payer</span>
+            <h2>
+                <span class="total-price"></span>
+                Eur
+            </h2>
+            </div>
+        </div>
+    </div>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+        <script>
+        $(document).ready(function () {
+
+            const citySelector = $('#order_city');
+            const cityValue = citySelector.val();
+            
+            const url = `http://127.0.0.1:8000/city/${cityValue}/shipping/cost`;
+
+            function ajaxRequest(url){
+
+                 $.ajax({
+                url:url,
+                type:'GET',
+                success:function (response) {
+                    const newResponse = JSON.parse(response)
+                    if (parseInt(newResponse.status) === 200){
+                        
+                        $("#shippingCost").text(newResponse.content)
+
+                        const cardPrice = parseInt($("#card-price").text());
+                        const shippingCost = parseInt($('#shippingCost').text());
+                        
+                        $('.total-price').text(cardPrice+shippingCost);
+
+                        
+                    }
+                
+                },
+                error:function (xhr,status,error) {
+
+                }
+            })
+
+            }
+
+           ajaxRequest(url)
+
+            // Lier un événement 'change' à citySelector pour détecter un changement de sélection
+            citySelector.on('change', function () {
+                    const urlUpdate = `http://127.0.0.1:8000/city/${$(this).val()}/shipping/cost`;
+                    ajaxRequest(urlUpdate)
+
+            })
+
+
+
+                
+        });
+    </script>
+{% endblock %}
