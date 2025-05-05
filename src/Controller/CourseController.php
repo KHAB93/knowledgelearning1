@@ -21,25 +21,25 @@ class CourseController extends AbstractController
     #[Route('/courses', name: 'app_courses')]
     public function index(OrderRepository $orderRepository, OrderProductsRepository $orderProductsRepository): Response
     {
-        // Récupérer l'utilisateur connecté
+        // Recover logged-in user
         $user = $this->getUser();
 
-        // Trouver toutes les commandes de l'utilisateur connecté
+        // Find all commands of the logged-in user
         $orders = $orderRepository->findBy(['user' => $user]);
 
-        // Récupérer tous les produits de commandes pour cet utilisateur
+         // Retrieve all order products for this user
         $purchasedCourses = [];
 
         foreach ($orders as $order) {
             foreach ($order->getOrderProducts() as $orderProduct) {
-                $purchasedCourses[] = $orderProduct->getCourse(); // Ajouter le cours acheté
+                $purchasedCourses[] = $orderProduct->getCourse(); // Add purchased course
             }
         }
 
-        // ✅ Ajoute le dump ici pour vérifier les cours achetés
+       // Add dump here to check purchased courses
         dump($purchasedCourses);
 
-        // Passer les cours achetés à la vue
+        // Skip purchased courses to view
         return $this->render('course/index.html.twig', [
             'purchasedCourses' => $purchasedCourses
         ]);
@@ -48,7 +48,7 @@ class CourseController extends AbstractController
     #[Route('/course/{id}', name: 'course_show')]
 public function show(string $id, CourseRepository $courseRepository): Response
 {
-    // Trouver le cours par son id
+     // Find the course by its id
     $course = $courseRepository->find($id);
 
     if (!$course) {
@@ -143,7 +143,7 @@ public function validateCourse(
         }
     }
 
-    // Vérifier si le cours est déjà validé
+    // Check if the course has already been validated
     $alreadyCompleted = $em->getRepository(CourseCompletion::class)->findOneBy([
         'user' => $user,
         'course' => $course
@@ -161,23 +161,23 @@ public function validateCourse(
     return $this->redirectToRoute('app_user_lessons');
 }
 
-// Route pour afficher les certifications d'un cours spécifique
+// Route to display certifications for a specific course
 #[Route('/course/{id}/certifications', name: 'app_course_certifications')]
 public function showCertifications(int $id, CourseRepository $courseRepository, EntityManagerInterface $em): Response
 {
-    // Récupère l'utilisateur
+    // Retrieves the user
     $user = $this->getUser();
     if (!$user) {
         return $this->redirectToRoute('app_login');
     }
 
-    // Récupère le cours
+     // Retrieve course
     $course = $courseRepository->find($id);
     if (!$course) {
         throw $this->createNotFoundException('Cours non trouvé');
     }
 
-    // Vérifie si l'utilisateur a acheté ce cours
+    // Checks if the user has purchased this course
     $hasPurchased = false;
     foreach ($user->getOrders() as $order) {
         foreach ($order->getOrderItems() as $orderItem) {
@@ -194,7 +194,7 @@ public function showCertifications(int $id, CourseRepository $courseRepository, 
         return $this->redirectToRoute('app_products');
     }
 
-    // Vérifie si l'utilisateur a complété toutes les leçons du cours
+    // Checks whether the user has completed all the lessons in the course
     $lessons = $course->getLessons();
     $completedLessons = $em->getRepository(LessonCompletion::class)->findBy([
         'user' => $user,

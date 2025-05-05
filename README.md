@@ -2,7 +2,7 @@
 
 Un projet Symfony pour gérer des entités comme les utilisateurs, les commandes (orders), les villes, etc. Utilise Doctrine ORM et les fixtures pour la génération de données de test.
 
-## 🚀 Installation
+## Installation
 
 Clone le dépôt et installe les dépendances :
 
@@ -14,7 +14,7 @@ composer install
 
 
 
-## ⚙️ Configuration de la base de données
+## Configuration de la base de données
 
 Crée la base de données et exécute les migrations :
 
@@ -23,7 +23,7 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 ```
 
-## 🧪 Chargement des fixtures
+##  Chargement des fixtures
 
 Pour charger les données de test (utilisateurs, villes, commandes, etc.) :
 
@@ -31,7 +31,7 @@ Pour charger les données de test (utilisateurs, villes, commandes, etc.) :
 php bin/console doctrine:fixtures:load
 ```
 
-> ⚠️ Cela effacera toutes les données existantes dans la base de données.
+> Cela effacera toutes les données existantes dans la base de données.
 
 ## 🧭 Lancer le serveur
 
@@ -41,7 +41,7 @@ symfony server:start
 
 Accède ensuite à l'application via [http://localhost:8000](http://localhost:8000)
 
-## 🧱 Structure des Fixtures
+##  Structure des Fixtures
 
 - `UserFixtures` : crée des utilisateurs.
 - `CityFixtures` : crée des villes.
@@ -49,7 +49,7 @@ Accède ensuite à l'application via [http://localhost:8000](http://localhost:80
 
 Assure-toi que les références (`addReference()`) sont définies dans les bonnes classes et que l’ordre de chargement respecte les dépendances.
 
-## 🤝 Contribution
+## Contribution
 
 Les contributions sont les bienvenues !
 

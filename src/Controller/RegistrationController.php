@@ -31,13 +31,13 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dump($form->getErrors(true)); // Afficher les erreurs du formulaire
+            dump($form->getErrors(true)); // Display form errors
 
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
             
                 if (!$plainPassword) {
-                    // Cela pourrait renvoyer un message d'erreur si le mot de passe est vide
+                    
                     $this->addFlash('error', 'Mot de passe est requis.');
                     return $this->redirectToRoute('app_register');
                 }
@@ -45,18 +45,18 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             
-            // Générer un jeton d'activation
-            $activationToken = bin2hex(random_bytes(32));  // Générer un jeton aléatoire
+            // Generate an activation token
+            $activationToken = bin2hex(random_bytes(32));   // Generate a random token
             $user->setActivationToken($activationToken);
 
-            // Sauvegarder l'utilisateur sans encore activer le compte
+             // Save user without activating account
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Créer un email de confirmation
+           // Create a confirmation email
             $email = (new TemplatedEmail())
-                ->from('no-reply@tondomaine.com') // adresse de l'expéditeur
-                ->to($user->getEmail()) // adresse du destinataire
+                ->from('no-reply@tondomaine.com')  // sender's address
+                ->to($user->getEmail()) // recipient address
                 ->subject('Confirmez votre inscription')
                 ->html($this->renderView('emails/activation_email.html.twig', [
                     'token' => $activationToken,
@@ -67,7 +67,7 @@ class RegistrationController extends AbstractController
             $mailer->send($email);
 
 
-             // Lancer la session de l'utilisateur après l'inscription
+            // Launch user session after registration
              $this->addFlash('success', 'Votre inscription a été réussie !');
 
              
@@ -79,12 +79,12 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    // src/Controller/RegistrationController.php
+  
 
 #[Route('/activate/{token}', name: 'app_activate')]
 public function activateAccount(string $token, EntityManagerInterface $entityManager): Response
 {
-    // Chercher l'utilisateur par son jeton d'activation
+    // Find user by activation token
     $user = $entityManager->getRepository(User::class)->findOneBy(['activationToken' => $token]);
 
     if ($user === null) {
@@ -92,13 +92,13 @@ public function activateAccount(string $token, EntityManagerInterface $entityMan
         return $this->redirectToRoute('app_register');
     }
 
-    // Activer le compte de l'utilisateur
+    // Activate user account
     $user->setIsActive(true);
-    $user->setActivationToken(null);  // Supprimer le jeton d'activation une fois utilisé
+    $user->setActivationToken(null);  // Delete activation token once used
 
     $entityManager->flush();
 
-    // Afficher un message de succès
+   // Display a success message
     $this->addFlash('success', 'Votre compte a été activé avec succès !');
 
     return $this->redirectToRoute('app_login');

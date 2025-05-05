@@ -32,13 +32,13 @@ final class StripeController extends AbstractController
             throw $this->createNotFoundException('Cours non trouvé.');
         }
 
-        // ✅ Stocker l'ID du cours dans la session
+        //  Store course ID in session
         $session->set('purchased_course_id', $course->getId());
 
-        // ✅ Clé API Stripe
+       // API Stripe key
         Stripe::setApiKey('sk_test_...'); // Remplace par ta vraie clé
 
-        // ✅ Création de la session de paiement
+       // Create payment session
         $checkoutSession = Session::create([
             'line_items' => [[
                 'price_data' => [
@@ -46,7 +46,7 @@ final class StripeController extends AbstractController
                     'product_data' => [
                         'name' => $course->getTitle(),
                     ],
-                    'unit_amount' => $course->getPrice() * 100, // En centimes
+                    'unit_amount' => $course->getPrice() * 100,
                 ],
                 'quantity' => 1,
             ]],
@@ -73,13 +73,13 @@ final class StripeController extends AbstractController
         throw $this->createNotFoundException('Cours non trouvé');
     }
 
-    // Récupère l'utilisateur connecté
+     // Retrieves logged-in user
     $user = $this->getUser();
     if (!$user) {
         throw $this->createAccessDeniedException('Vous devez être connecté pour accéder à vos leçons.');
     }
 
-    // Création de la commande
+   // Create command
     $order = new Order();
     $order->setUser($user);
     $order->setCreatedAt(new \DateTimeImmutable());
@@ -87,59 +87,57 @@ final class StripeController extends AbstractController
     $order->setStatus('pending'); 
     $order->setTotalPrice($course->getPrice());
 
-    
 
-
-    // Récupération des informations de l'utilisateur
+     // Retrieve user information
     $order->setFirstName($user->getFirstName());
     $order->setLastName($user->getLastName());
     $order->setPhone($user->getPhone()); 
     $order->setAdresse($user->getAdresse()); 
 
-    // Ajouter la ville
+   // Add city
     if ($user->getCity()) {
         $order->setCity($user->getCity()); 
     }
 
-    // Création du produit de la commande
+    // Order product creation
     $orderProduct = new OrderProducts();
-    $orderProduct->setOrder($order);  // Lier le produit à la commande
-    $orderProduct->setProduct($course->getProduct());  // Lier le produit au cours
-    $orderProduct->setQte(1);  // Quantité du produit
+    $orderProduct->setOrder($order);  // Link product to order
+    $orderProduct->setProduct($course->getProduct()); // Link product to course
+    $orderProduct->setQte(1); // Product quantity
 
-    // Ajouter le produit à la commande
+    // Add product to order
     $order->addOrderProduct($orderProduct);
 
-   // Commencer la transaction pour garantir que tout soit enregistré correctement
+  // Start the transaction to ensure that everything is recorded correctly
    $entityManager->beginTransaction();
    try {
-       // Persister la commande et les produits associés
+       // Customize order and associated products
        $entityManager->persist($order);
        $entityManager->persist($orderProduct);
-       $entityManager->flush();  // Enregistrer dans la base de données
-       $entityManager->commit();  // Valider la transaction
+       $entityManager->flush();  // Save to database
+       $entityManager->commit();  // Validate transaction
 
-       // Vérification
+      // Verification
         dump($order);
         dump($orderProduct);
-        exit;  // Pour tester si l'objet est bien persistant
+        exit;  // To test whether the object is persistent
 
-        // ✅ Vider le panier ici
+    
         $request->getSession()->remove('cart');
 
     
 
    } catch (\Exception $e) {
-       // En cas d'erreur, annuler la transaction
+       // In case of error, cancel the transaction
        $entityManager->rollback();
        throw $e;
    }
 
 
-    // ✅ Redirection vers la leçon
+  //  Redirect to lesson
     return $this->redirectToRoute('app_lesson_show', ['id' => $course->getId()]);
 
-    // Supprime l'ID de session après usage (sécurité)
+    // Delete session ID after use (security)
     $request->getSession()->remove('purchased_course_id');
 }
 

@@ -51,54 +51,51 @@ final class OrderController extends AbstractController
         EntityManagerInterface $entityManager,
         Cart $cart
     ): Response {
-    // Récupérer les données du panier (produits et total)
-    $data = $cart->getCart($session); // Doit contenir 'items' et 'total'
+    // Retrieve basket data (products and total)
+    $data = $cart->getCart($session); // Must contain 'items' and 'total
 
-    // Créer une nouvelle instance d'Order
+   // Create a new Order instance
     $order = new Order();
 
-    // Créer le formulaire pour la commande
+    // Create the order form
     $form = $this->createForm(OrderType::class, $order);
     $form->handleRequest($request);
 
-    // Lorsque le formulaire est soumis et valide
+    // When the form is submitted and valid
     if ($form->isSubmitted() && $form->isValid()) {
-        // Persister l'ordre avec tous les produits et le total
+        // Persist order with all products and total
         $order->setTotalPrice($data['total']);
         $order->setCreatedAt(new \DateTimeImmutable());
-        $order->setUser($this->getUser());  // Si l'utilisateur est connecté
+        $order->setUser($this->getUser());  // If the user is logged in
         
-        // Persister les produits liés à la commande
+         // Persist products linked to the order
         foreach ($data['items'] as $item) {
             $orderItem = new OrderItem();
             $orderItem->setProduct($item['product']);
             $orderItem->setQuantity($item['quantity']);
-            $orderItem->setOrder($order);  // Lier l'item à la commande
+            $orderItem->setOrder($order);  // Link item to command
             $entityManager->persist($orderItem);
         }
 
-        // Enregistrer la commande dans la base de données
+         // Save order in database
         $entityManager->persist($order);
         $entityManager->flush();
 
-        // Lancer le paiement avec Stripe
+       // Start payment with Stripe
         $payment = new StripePayment();
-        $payment->startPayment($data, 0); // pas de frais de livraison
+        $payment->startPayment($data, 0); // no delivery charges
 
-        // Rediriger vers l'URL de paiement Stripe
+         // Redirect to Stripe payment URL
         return $this->redirect($payment->getStripeRedirectUrl());
     }
 
-    // Afficher le formulaire de commande avec le total
-    return $this->render('order/index.html.twig', [
-        'form' => $form->createView(),
-        'total' => $data['total']
+        // Display order form with total
+        return $this->render('order/index.html.twig', [
+            'form' => $form->createView(),
+            'total' => $data['total']
     ]);
 }
 
-     
-     
-     
 
     #[Route('/admin/order', name: 'app_orders_show')]
     public function getAllOrder(OrderRepository $orderRepository):Response
@@ -131,7 +128,6 @@ final class OrderController extends AbstractController
 
     }
 
-
     #[Route("/order-ok-message", name:'order_ok_message')]
     public function orderMessage ():Response
 
@@ -139,7 +135,6 @@ final class OrderController extends AbstractController
         return $this->render('order/order_message.twig');
     }
    
-
     #[Route('/city/{id}/shipping/cost', name: 'app_city_shipping_cost')]
     public function cityShippingCost(City $city):Response
     {
@@ -149,8 +144,8 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/order/lessons', name: 'app_order_lessons')]
-public function showBoughtLessons(SessionInterface $session, OrderRepository $orderRepository, OrderProductsRepository $orderProductsRepository): Response
-{
+    public function showBoughtLessons(SessionInterface $session, OrderRepository $orderRepository, OrderProductsRepository $orderProductsRepository): Response
+    {
     $user = $this->getUser();
 
     if (!$user) {
@@ -158,7 +153,7 @@ public function showBoughtLessons(SessionInterface $session, OrderRepository $or
         return $this->redirectToRoute('app_home_page');
     }
 
-    // Récupérer toutes les commandes de l'utilisateur
+    // Retrieve all user commands
     $orders = $orderRepository->findBy(['user' => $user], ['id' => 'DESC']);
 
     if (!$orders) {
@@ -166,13 +161,13 @@ public function showBoughtLessons(SessionInterface $session, OrderRepository $or
         return $this->redirectToRoute('app_home_page');
     }
 
-    // Récupérer tous les produits de commande associés à l'utilisateur
+    // Retrieve all order products associated with the user
     $orderProducts = [];
     foreach ($orders as $order) {
         $orderProducts = array_merge($orderProducts, $order->getOrderProducts()->toArray());
     }
 
-    // Extraire les cours des produits commandés
+    // Extract prices for ordered products
     $courses = [];
     foreach ($orderProducts as $orderProduct) {
         $product = $orderProduct->getProduct();
@@ -194,32 +189,32 @@ private function persistOrder(
     EntityManagerInterface $entityManager,
     ProductRepository $productRepository
 ): void {
-    $order->setUser($this->getUser()); // Associer l'utilisateur à la commande
-    $order->setTotalPrice($data['total']); // Mettre à jour le prix total
-    $order->setCreatedAt(new \DateTimeImmutable()); // Mettre à jour la date de création
+    $order->setUser($this->getUser()); // Associate user with command
+    $order->setTotalPrice($data['total']);  // Update total price
+    $order->setCreatedAt(new \DateTimeImmutable()); // Update creation date
     
-    // Persister la commande
+    // persist command
     $entityManager->persist($order);
-    $entityManager->flush(); // Pour générer l'ID de la commande
+    $entityManager->flush(); // To generate the order ID
 
-    // Ajouter les produits de la commande
-    foreach ($data['cartItems'] as $item) {// Attention ici, 'items' doit être la bonne clé
+    // Add products to order
+    foreach ($data['cartItems'] as $item) {
         $product = $productRepository->find($item['product']->getId());
 
         if (!$product) {
-            continue; // Sécurité si un produit a été supprimé
+            continue; // Security if a product has been deleted
         }
 
         $orderProduct = new OrderProducts();
         $orderProduct->setOrder($order);
         $orderProduct->setProduct($product);
-        $orderProduct->setQte($item['quantity']); // Quantité du produit
+        $orderProduct->setQte($item['quantity']); 
 
-        // Persister chaque produit lié à la commande
+        // Customize each product linked to the order
         $entityManager->persist($orderProduct);
     }
 
-    // Enregistrer les changements
+    // Save changes
     $entityManager->flush();
 }
 

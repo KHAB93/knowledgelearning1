@@ -29,12 +29,12 @@ class Product
     #[ORM\Column]
     private ?int $price = null;
 
-    // Déclaration correcte de la relation ManyToOne avec Course
+    // Correct declaration of the ManyToOne relationship with Course
     #[ORM\ManyToOne(targetEntity: Course::class, inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)] 
     private ?Course $course = null;
 
-    // Méthodes getter et setter pour la propriété $course
+     // Getter and setter methods for the $course property
     public function getCourse(): ?Course
     {
         return $this->course;
@@ -52,7 +52,7 @@ class Product
      */
     private $stock;
 
-    // ... autres méthodes
+   
 
     public function getStock(): ?int
     {
@@ -79,7 +79,7 @@ class Product
         $this->orderItem = new ArrayCollection();
     }
 
-    // ... existing methods ...
+    
 
     /**
      * @return Collection<int, AddProductHistory>

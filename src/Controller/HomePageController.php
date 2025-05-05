@@ -14,23 +14,18 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class HomePageController extends AbstractController
 {
-  
 
     #[Route('/', name: 'app_home_page', methods: ['GET'])]
     public function index(ProductRepository $productRepository): Response
 {
-    
     $products = $productRepository->findBy([
         'id' =>  [1, 6, 9, 13]
 
-       
     ]);
-
     return $this->render('homePage/index.html.twig', [
         'products' => $products,
     ]);
 }
-
 
     #[Route('/home/page/product/{id}/show', name: 'app_home_page_product_show', methods: ['GET'])]
     public function show(Product $product, ProductRepository $productRepository, Request $request): Response
@@ -56,11 +51,6 @@ public function products(ProductRepository $productRepository): Response
     ]);
 }
 
-
- 
-
-
-    
     public function register():Response
 
     {
@@ -72,8 +62,6 @@ public function products(ProductRepository $productRepository): Response
     {
         return $this ->render(view: 'security/login.html.twig');
     }
-
-    
 
     public function productid():Response
 
