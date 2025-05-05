@@ -4,32 +4,29 @@
 
 {% block body%} 
 
-<div class="card mb-12" style="margin-top: 70px">
-  <div class="row g-0">
-    <div class="col-md-4">
-      <img src="{{ asset('uploads/images/'~product.image) }}" class="img-fluid rounded-start" alt="...">
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-        <h1 class="card-title">{{ product.name }}</h1>
-        <p class="card-text">{{product.description}}</p>
-        <p class="card-text fw-bold">{{ product.price }} €</p>
-        <a href="{{ path('app_cart_new',{'id':product.id}) }}" class="text-success text-decoration-none">Ajouter au panier</a>
-
-    <div class="mb-3">
-        <label for="size" class="form-label">Choisissez une taille :</label>
-        <select name="size" id="size" class="form-select">
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-        </select>
-    </div>
-
+<div class="container mt-5">
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for product in products %}
+      <div class="col">
+        <div class="card h-100">
+          <img 
+            src="{{ asset('uploads/images/' ~ product.image) }}" 
+            class="card-img-top"
+            alt="{{ product.name }}"
+            style="height: 200px; object-fit: contain;"
+          >
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description }}</p>
+            <p class="fw-bold">{{ product.price }} €</p>
+            <a href="{{ path('app_cart_new', { id: product.id }) }}" class="btn btn-success mt-auto">Ajouter au panier</a>
+          </div>
+        </div>
       </div>
-    </div>
+    {% endfor %}
   </div>
 </div>
+
 
 <h2>Derniers produits ajoutés</h2>
 

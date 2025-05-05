@@ -18,18 +18,28 @@ final class CartController extends AbstractController
     #[Route('/cart', name: 'app_cart', methods: ['GET'])]
     public function index(SessionInterface $session, Cart $cart): Response
     {
+        // Récupérer les données du panier avec la clé 'items'
         $data = $cart->getCart($session);
-        $cartProducts = $data['cart'];
+        
+        // Accéder aux produits du panier via la clé 'items' au lieu de 'cart'
+        $cartProducts = $data['items'];
         $product = [];
-
-        foreach ($cartProducts as $value){
-            
+        
+        // Traitement des produits dans le panier
+        foreach ($cartProducts as $value) {
+            // Logique pour manipuler chaque produit
+            // Par exemple, tu peux ajouter chaque produit à la liste $product
+            $product[] = $value['product'];
         }
+    
+        // Retourner la réponse
         return $this->render('cart/index.html.twig', [
-            'items' => $data['cart'],
-            'total' => $data['total']
+            'items' => $data['items'],  // Utiliser 'items' ici
+            'total' => $data['total'],  // Total des produits dans le panier
         ]);
-}
+    }
+    
+
 
 
     #[Route('/cart/add/{id}/', name: 'app_cart_new', methods: ['GET'])]

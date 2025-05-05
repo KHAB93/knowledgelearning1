@@ -12,13 +12,19 @@
 
         {{ form_errors(registrationForm) }}
 
-        {{ form_start(registrationForm) }}
-            {{ form_widget(registrationForm.email,{'attr':{'class':'form form-control','placeholder':"email"}}) }}
+        {{ form_start(registrationForm, { method: 'POST' }) }}
+
+            {{ form_row(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Email'}}) }}
+
 
             {{ form_widget(registrationForm.plainPassword,{'attr':{'class':'form form-control','placeholder':"mot de passe"}}) }}
-            {{ form_row(registrationForm.agreeTerms) }}
+           
 
-            <button type="submit" class="btn">S'inscrire</button>
+            <button type="submit" class="btn btn-primary mt-3">S'inscrire</button>
+
+
+
+          
         {{ form_end(registrationForm) }}
     </div>
 </div>

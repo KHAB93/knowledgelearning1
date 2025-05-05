@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>{{ course.title }}</h1>
+        <p>{{ course.description }}</p>
+        <!-- Ajouter ici vidéos, ressources PDF, etc. -->
+    </div>
+{% endblock %}
+
+

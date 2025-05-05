@@ -1,0 +1,10 @@
+{% for course in courses %}
+    <div>
+        {{ course.title }}
+        {% if course in completedCourses|map(c => c.getCourse()) %}
+            <span class="badge bg-success">Cours terminé</span>
+        {% else %}
+            <a href="{{ path('app_validate_course', { id: course.id }) }}" class="btn btn-sm btn-primary">Valider ce cours</a>
+        {% endif %}
+    </div>
+{% endfor %}

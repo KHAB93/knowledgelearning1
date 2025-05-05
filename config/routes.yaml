@@ -28,13 +28,25 @@ app_product/id:
     controller: App\Controller\HomePageController::productid
     methods: ['GET','POST']
 
-
-
 app_admin:
 
     path: /admin
     controller: App\Controller\HomePageController::admin
     methods: ['GET','POST']
+
+app_lesson_show:
+    path: /lesson/{id}
+    controller: App\Controller\LessonController::show
+    methods: [GET]
+    requirements:
+        id: \d+  
+
+app_user_lesson:
+    path: /user/lessons
+    controller: App\Controller\LessonController::userLessons
+    methods: [GET]
+
+
     
 
   

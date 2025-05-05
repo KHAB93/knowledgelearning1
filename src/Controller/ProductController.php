@@ -16,10 +16,21 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use DateTimeImmutable;
 use App\Form\ProductUpdateType;
+use App\Repository\CourseRepository;
+
 
 #[Route('/product')]
 final class ProductController extends AbstractController
 {
+    private $courseRepository;
+
+    // Injection du repository CourseRepository dans le constructeur
+    public function __construct(CourseRepository $courseRepository)
+    {
+        $this->courseRepository = $courseRepository;
+    }
+
+
     #[Route(name: 'app_product_index', methods: ['GET'])]
     public function index(ProductRepository $productRepository): Response
     {
@@ -29,7 +40,7 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/new', name: 'app_product_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, CourseRepository $courseRepository): Response
     {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
@@ -43,27 +54,22 @@ final class ProductController extends AbstractController
                 $safeFileName = $slugger->slug($originalName);
                 $newFileName = $safeFileName.'-'.uniqid().'.'.$image->guessExtension();
 
-                try{
-                    $image->move(
-                        $this->getParameter('image_dir'),
-                        $newFileName
-                    );
-
-                }catch (FileException $exception){}
-
                 $product->setImage($newFileName);
 
             }
+
+            // Associer un cours au produit (si nécessaire)
+            $courseId = $form->get('course')->getData(); // Récupérer l'ID du cours
+            if ($courseId) {
+            $course = $courseRepository->find($courseId); // Trouver le cours
+            if ($course) {
+                $product->setCourse($course); // Associer le cours
+            }
+        }
             
             $entityManager->persist($product);
             $entityManager->flush();
 
-            $stockHistory = new AddProductHistory();
-            $stockHistory->setQte($product->getStock());
-            $stockHistory->setProduct($product);
-            $stockHistory->setCreatedAt(new DateTimeImmutable());
-            $entityManager->persist($stockHistory);
-            $entityManager->flush();
 
             $this->addFlash(type: 'success', message:'votre produit a été ajouté');
             return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
@@ -84,7 +90,7 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Product $product, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function edit(Request $request, Product $product, EntityManagerInterface $entityManager, SluggerInterface $slugger, CourseRepository $courseRepository): Response
     {
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
@@ -110,6 +116,14 @@ final class ProductController extends AbstractController
 
             }
 
+            // Mettre à jour la relation avec le cours (si nécessaire)
+            $courseId = $form->get('course')->getData(); // Récupérer l'ID du cours
+            if ($courseId) {
+            $course = $courseRepository->find($courseId); // Trouver le cours
+            if ($course) {
+                $product->setCourse($course); // Associer le cours
+            }
+        }
 
             $entityManager->flush();
             $this->addFlash(type: 'success', message:'votre produit a été modifié');
@@ -121,7 +135,6 @@ final class ProductController extends AbstractController
             'form' => $form,
         ]);
     }
-
 
 
     #[Route('/{id}', name: 'app_product_delete', methods: ['POST'])]

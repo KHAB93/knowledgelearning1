@@ -20,6 +20,8 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use App\Service\StripePayment;
+use App\Entity\OrderItem;
+
 
 
 
@@ -38,77 +40,65 @@ final class OrderController extends AbstractController
      * @throws TransportExceptionInterface
      */
 
-    #[Route('/order', name: 'app_order')]
-    public function index(Request $request,SessionInterface $session, 
-     ProductRepository $productRepository,
-     EntityManagerInterface $entityManager,
-     Cart $cart, 
     
-     ): Response
-    {
+
+
+     #[Route('/order', name: 'app_order')]
+    public function index(
+        Request $request,
+        SessionInterface $session,
+        ProductRepository $productRepository,
+        EntityManagerInterface $entityManager,
+        Cart $cart
+    ): Response {
+    // Récupérer les données du panier (produits et total)
+    $data = $cart->getCart($session); // Doit contenir 'items' et 'total'
+
+    // Créer une nouvelle instance d'Order
+    $order = new Order();
+
+    // Créer le formulaire pour la commande
+    $form = $this->createForm(OrderType::class, $order);
+    $form->handleRequest($request);
+
+    // Lorsque le formulaire est soumis et valide
+    if ($form->isSubmitted() && $form->isValid()) {
+        // Persister l'ordre avec tous les produits et le total
+        $order->setTotalPrice($data['total']);
+        $order->setCreatedAt(new \DateTimeImmutable());
+        $order->setUser($this->getUser());  // Si l'utilisateur est connecté
         
-            $data = $cart->getCart($session);
+        // Persister les produits liés à la commande
+        foreach ($data['items'] as $item) {
+            $orderItem = new OrderItem();
+            $orderItem->setProduct($item['product']);
+            $orderItem->setQuantity($item['quantity']);
+            $orderItem->setOrder($order);  // Lier l'item à la commande
+            $entityManager->persist($orderItem);
+        }
 
-            $order = new Order();
-            $form = $this->createForm(OrderType::class, $order);
-            $form->handleRequest($request);
+        // Enregistrer la commande dans la base de données
+        $entityManager->persist($order);
+        $entityManager->flush();
 
-            if ($form->isSubmitted() && $form->isValid()){
+        // Lancer le paiement avec Stripe
+        $payment = new StripePayment();
+        $payment->startPayment($data, 0); // pas de frais de livraison
 
-                if($order->isPayOnDelivery()){
-                    if (!empty($data['total'])){
-                        $order->setTotalPrice($data['total']);
-                        $order->setCreatedAt(new \DateTimeImmutable());
-                        $entityManager->persist($order);
-                        $entityManager->flush();
-                        
-                        foreach ($data['cart'] as $value){
-                        $orderProduct = new OrderProducts();
-                        $orderProduct->setOrder($order);
-                        $orderProduct->setProduct($value['product']);
-                        $orderProduct->setQte($value['quantity']);
-                        $entityManager->persist($orderProduct);
-                        $entityManager->flush();
-                        }
-                    }
-
-                    $session->set('cart', []);
-
-                    $html = $this->renderView('mail/orderConfirm.html.twig',[
-                        'order'=>$order
-                    ]);
-
-                    $email = (new Email())
-                    ->from('bahaa.khatibi@hotmail.fr')
-                    ->to('to@mail.com')
-                    ->subject('Confirmation de réception de la commande')
-                    ->html($html);
-
-                    $this->mailer->send($email);
-
-                    return $this->redirectToRoute('order_ok_message');
-
-                }
-
-                $payment = new StripePayment();
-
-                $shippingCost = $order->getCity()->getShippingCost();
-
-                $payment->startPayment($data, $shippingCost);
-
-                $stripeRedirectUrl = $payment->getStripeRedirectUrl();
-
-                //dd($stripeRedirectUrl);
-                
-                
-                return $this->redirect($stripeRedirectUrl);
-            }
-
-            return $this->render('order/index.html.twig', [
-                'form'=>$form->createView(),
-                'total'=>$data['total']
-        ]);
+        // Rediriger vers l'URL de paiement Stripe
+        return $this->redirect($payment->getStripeRedirectUrl());
     }
+
+    // Afficher le formulaire de commande avec le total
+    return $this->render('order/index.html.twig', [
+        'form' => $form->createView(),
+        'total' => $data['total']
+    ]);
+}
+
+     
+     
+     
 
     #[Route('/admin/order', name: 'app_orders_show')]
     public function getAllOrder(OrderRepository $orderRepository):Response
@@ -142,8 +132,6 @@ final class OrderController extends AbstractController
     }
 
 
-
-
     #[Route("/order-ok-message", name:'order_ok_message')]
     public function orderMessage ():Response
 
@@ -159,7 +147,91 @@ final class OrderController extends AbstractController
 
         return new Response(json_encode(['status'=>200, "message"=>'on', 'content'=>$cityShippingPrice]));
     }
-   
+
+    #[Route('/order/lessons', name: 'app_order_lessons')]
+public function showBoughtLessons(SessionInterface $session, OrderRepository $orderRepository, OrderProductsRepository $orderProductsRepository): Response
+{
+    $user = $this->getUser();
+
+    if (!$user) {
+        $this->addFlash('warning', 'Veuillez vous connecter pour voir vos leçons.');
+        return $this->redirectToRoute('app_home_page');
+    }
+
+    // Récupérer toutes les commandes de l'utilisateur
+    $orders = $orderRepository->findBy(['user' => $user], ['id' => 'DESC']);
+
+    if (!$orders) {
+        $this->addFlash('warning', 'Aucune commande trouvée.');
+        return $this->redirectToRoute('app_home_page');
+    }
+
+    // Récupérer tous les produits de commande associés à l'utilisateur
+    $orderProducts = [];
+    foreach ($orders as $order) {
+        $orderProducts = array_merge($orderProducts, $order->getOrderProducts()->toArray());
+    }
+
+    // Extraire les cours des produits commandés
+    $courses = [];
+    foreach ($orderProducts as $orderProduct) {
+        $product = $orderProduct->getProduct();
+        $course = $product ? $product->getCourse() : null;
+
+        if ($course && !in_array($course, $courses, true)) {
+            $courses[] = $course;
+        }
+    }
+
+    return $this->render('order/lessons.html.twig', [
+        'courses' => $courses,
+    ]);
+}
+
+private function persistOrder(
+    Order $order,
+    array $data,
+    EntityManagerInterface $entityManager,
+    ProductRepository $productRepository
+): void {
+    $order->setUser($this->getUser()); // Associer l'utilisateur à la commande
+    $order->setTotalPrice($data['total']); // Mettre à jour le prix total
+    $order->setCreatedAt(new \DateTimeImmutable()); // Mettre à jour la date de création
+    
+    // Persister la commande
+    $entityManager->persist($order);
+    $entityManager->flush(); // Pour générer l'ID de la commande
+
+    // Ajouter les produits de la commande
+    foreach ($data['cartItems'] as $item) {// Attention ici, 'items' doit être la bonne clé
+        $product = $productRepository->find($item['product']->getId());
+
+        if (!$product) {
+            continue; // Sécurité si un produit a été supprimé
+        }
+
+        $orderProduct = new OrderProducts();
+        $orderProduct->setOrder($order);
+        $orderProduct->setProduct($product);
+        $orderProduct->setQte($item['quantity']); // Quantité du produit
+
+        // Persister chaque produit lié à la commande
+        $entityManager->persist($orderProduct);
+    }
+
+    // Enregistrer les changements
+    $entityManager->flush();
+}
+
+
+
+
+
 
 
 }
+
+
+   
+
+

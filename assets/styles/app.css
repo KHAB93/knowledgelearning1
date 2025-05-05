@@ -24,3 +24,31 @@ h1, h2{
     margin-top:30px;
     margin-bottom: 30px;
 }
+
+.navbar {
+    padding-top: 1rem; /* espace en haut */
+    padding-bottom: 1rem; /* espace en bas => augmente la hauteur */
+    min-height: 80px; /* hauteur minimale si tu veux une valeur fixe */
+}
+
+.custom-navbar {
+    background-color: #0074c7; /* ta couleur personnalisée */
+}
+
+.custom-footer {
+    background-color: #384050; /* Couleur de fond (sombre ici) */
+    color: white;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+}
+
+.custom-footer a {
+    color: #f1f8fc;
+    text-decoration: none;
+}
+
+.custom-footer a:hover {
+    text-decoration: underline;
+}
+
+

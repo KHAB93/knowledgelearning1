@@ -1,48 +1,68 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CartController!{% endblock %}
+{% block title %}Mon Panier{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Panier</h1>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total Price</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if items is empty %}
-                <tr>
-                    <td colspan="5" class="text-center">Votre panier est vide</td>
-                </tr>
-            {% else %}
-                {% for item in items %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>{{ item.product.price }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ item.product.price * item.quantity }}</td>
-                        <td>
-                            <a href="{{ path('app_cart_product_remove', {'id':item.product.id}) }}" class="text-danger text-decoration-none">Supprimer le panier</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
-    {% if total > 0%}
-    <br><br>
-    <h2>Total: {{ total }} Euros</h2>
-    <div class="row">
-        <a data-turbo="false" href="{{ path('app_order')}}" class="btn btn-primary col_2 m-lg-1">Valider la commande</a>
-        <a href="{{ path('app_cart_remove') }}" class="btn btn-outline-danger col-2 m-lg-1">Supprimer le panier</a>
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <h1>Votre Panier</h1>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Prix Unitaire</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if items is empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">Votre panier est vide</td>
+                            </tr>
+                        {% else %}
+                            {% for item in items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.product.price }} €</td>
+                                    <td>{{ item.product.price * item.quantity }} €</td>
+                                    <td>
+                                        <a href="{{ path('app_cart_product_remove', {'id':item.product.id}) }}" class="text-danger text-decoration-none">Supprimer le panier</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+
+                <div class="total-price">
+                    <p>Total: {{ total }} €</p>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <!-- Bouton ou lien vers la validation de la commande -->
+                
+                    <a href="{{ path('app_order') }}" class="btn btn-success">Valider la commande</a>
+                
+                    
+               
+            </div>
+        </div>
     </div>
-    {% endif %}
-</div>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
 

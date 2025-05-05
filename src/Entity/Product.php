@@ -7,6 +7,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Course;
+
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -16,7 +20,7 @@ class Product
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255,unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -25,8 +29,42 @@ class Product
     #[ORM\Column]
     private ?int $price = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $size = null;
+    // Déclaration correcte de la relation ManyToOne avec Course
+    #[ORM\ManyToOne(targetEntity: Course::class, inversedBy: 'products')]
+    #[ORM\JoinColumn(nullable: false)] 
+    private ?Course $course = null;
+
+    // Méthodes getter et setter pour la propriété $course
+    public function getCourse(): ?Course
+    {
+        return $this->course;
+    }
+
+    public function setCourse(?Course $course): static
+    {
+        $this->course = $course;
+        return $this;
+    }
+
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $stock;
+
+    // ... autres méthodes
+
+    public function getStock(): ?int
+    {
+        return $this->stock;
+    }
+
+    public function setStock(int $stock): self
+    {
+        $this->stock = $stock;
+
+        return $this;
+    }
 
     /**
      * @var Collection<int, AddProductHistory>
@@ -38,7 +76,7 @@ class Product
     {
         $this->subCategories = new ArrayCollection();
         $this->addProductHistories = new ArrayCollection(); // Initialize the collection
-        $this->orderProducts = new ArrayCollection();
+        $this->orderItem = new ArrayCollection();
     }
 
     // ... existing methods ...
@@ -82,16 +120,26 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\Column]
-    private ?int $stock = null;
+   
 
     /**
-     * @var Collection<int, OrderProducts>
+     * @var Collection<int, OrderItem>
      */
-    #[ORM\OneToMany(targetEntity: OrderProducts::class, mappedBy: 'product')]
-    private Collection $orderProducts;
+    #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'product')]
+    private Collection $orderItem;
 
-    
+    private ?File $imageFile = null;
+
+
+public function setImageFile(?File $imageFile): void
+{
+    $this->imageFile = $imageFile;
+}
+
+public function getImageFile(): ?File
+{
+    return $this->imageFile;
+}
 
     public function getId(): ?int
     {
@@ -134,17 +182,7 @@ class Product
         return $this;
     }
 
-    public function getSize(): ?string
-    {
-        return $this->size;
-    }
 
-    public function setSize(string $size): static
-    {
-        $this->size = $size;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, SubCategory>
@@ -182,45 +220,37 @@ class Product
         return $this;
     }
 
-    public function getStock(): ?int
-    {
-        return $this->stock;
-    }
-
-    public function setStock(int $stock): static
-    {
-        $this->stock = $stock;
-
-        return $this;
-    }
 
     /**
-     * @return Collection<int, OrderProducts>
+     * @return Collection<int, OrderItem>
      */
-    public function getOrderProducts(): Collection
+    public function getOrderItem(): Collection
     {
-        return $this->orderProducts;
+        return $this->orderItem;
     }
 
-    public function addOrderProduct(OrderProducts $orderProduct): static
+    public function addOrderItem(OrderItem $orderItem): static
     {
-        if (!$this->orderProducts->contains($orderProduct)) {
-            $this->orderProducts->add($orderProduct);
-            $orderProduct->setProduct($this);
+        if (!$this->orderItem->contains($orderItem)) {
+            $this->orderItem->add($orderItem);
+            $orderItem->setProduct($this);
         }
 
         return $this;
     }
 
-    public function removeOrderProduct(OrderProducts $orderProduct): static
+    public function removeOrderItem(OrderItem $orderItem): static
     {
-        if ($this->orderProducts->removeElement($orderProduct)) {
+        if ($this->orderItem->removeElement($orderItem)) {
             // set the owning side to null (unless already changed)
-            if ($orderProduct->getProduct() === $this) {
-                $orderProduct->setProduct(null);
+            if ($orderItem->getProduct() === $this) {
+                $orderItem->setProduct(null);
             }
         }
 
         return $this;
     }
+
+    
+
 }

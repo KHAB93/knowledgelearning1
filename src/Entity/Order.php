@@ -6,6 +6,9 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User; 
+use App\Entity\OrderItem; 
+
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -34,14 +37,50 @@ class Order
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?bool $payOnDelivery = null;
+    #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderItem::class, cascade: ['persist'], orphanRemoval: true)]
+    private Collection $orderItems;
+
+    public function __construct()
+    {
+        $this->orderItems = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     /**
-     * @var Collection<int, OrderProducts>
+     * @return Collection<int, OrderItem>
      */
-    #[ORM\OneToMany(targetEntity: OrderProducts::class, mappedBy: '_order', orphanRemoval: true)]
-    private Collection $orderProducts;
+    public function getOrderItems(): Collection
+    {
+        return $this->orderItems;
+    }
+
+    public function addOrderItem(OrderItem $orderItem): static
+    {
+        if (!$this->orderItems->contains($orderItem)) {
+            $this->orderItems->add($orderItem);
+            $orderItem->setOrder($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderItem(OrderItem $orderItem): static
+    {
+        if ($this->orderItems->removeElement($orderItem)) {
+            if ($orderItem->getOrder() === $this) {
+                $orderItem->setOrder(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    /**
+     * @var Collection<int, OrderItem>
+     */
+    
 
     #[ORM\Column]
     private ?float $totalPrice = null;
@@ -49,10 +88,12 @@ class Order
     #[ORM\Column(nullable: true)]
     private ?bool $isCompleted = null;
 
-    public function __construct()
-    {
-        $this->orderProducts = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    private ?User $user = null;
+    
+
+
+
 
     public function getId(): ?int
     {
@@ -131,47 +172,26 @@ class Order
         return $this;
     }
 
-    public function isPayOnDelivery(): ?bool
-    {
-        return $this->payOnDelivery;
-    }
-
-    public function setPayOnDelivery(bool $payOnDelivery): static
-    {
-        $this->payOnDelivery = $payOnDelivery;
-
-        return $this;
-    }
+    
 
     /**
-     * @return Collection<int, OrderProducts>
+     * @return Collection<int, OrderItem>
      */
-    public function getOrderProducts(): Collection
+    public function OrderItem(): Collection
     {
-        return $this->orderProducts;
+        return $this->OrderItem;
     }
 
-    public function addOrderProduct(OrderProducts $orderProduct): static
+    public function addOrderProduct(OrderItem $orderProduct): static
     {
-        if (!$this->orderProducts->contains($orderProduct)) {
-            $this->orderProducts->add($orderProduct);
+        if (!$this->OrderItem->contains($orderProduct)) {
+            $this->OrderItem->add($orderProduct);
             $orderProduct->setOrder($this);
         }
 
         return $this;
     }
 
-    public function removeOrderProduct(OrderProducts $orderProduct): static
-    {
-        if ($this->orderProducts->removeElement($orderProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($orderProduct->getOrder() === $this) {
-                $orderProduct->setOrder(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getTotalPrice(): ?float
     {
@@ -196,4 +216,31 @@ class Order
 
         return $this;
     }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    #[ORM\Column(type: "string", length: 20)]
+    private ?string $status = 'pending';
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+
 }

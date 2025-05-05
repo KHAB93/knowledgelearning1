@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes cours achetés{% endblock %}
+
+{% block body %}
+    <h1>Mes cours achetés</h1>
+
+    {% if userPurchasedCourses is empty %}
+        <p>Vous n'avez encore acheté aucun cours.</p>
+    {% else %}
+        <div class="course-list">
+            {% for course in userPurchasedCourses %}
+                <div class="course-item">
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                    <a href="{{ path('app_lesson_show', { id: course.id }) }}" class="btn btn-primary">Voir le cours</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+
+

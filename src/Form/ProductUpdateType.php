@@ -36,7 +36,7 @@ class ProductUpdateType extends AbstractType
             ])
             ->add('description')
             ->add('price')
-            ->add('size')
+            
             //->add('stock')
             ->add('subCategories', EntityType::class, [
                 'class' => SubCategory::class,

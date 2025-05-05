@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block body %}
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+    <p><strong>Prix :</strong> {{ course.price }} €</p>
+
+    {% if allCompleted %}
+        <div class="alert alert-success">
+            🎉 Vous avez terminé ce cours !
+        </div>
+
+        <a href="{{ path('app_validate_course', { id: course.id }) }}" class="btn btn-success">
+            Valider le cours
+        </a>
+    {% endif %}
+
+    <ul class="nav nav-tabs mt-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" href="#lecons" data-bs-toggle="tab" role="tab">Leçons</a>
+        </li>
+        {% if allCompleted %}
+        <li class="nav-item">
+            <a class="nav-link" href="#certificat" data-bs-toggle="tab" role="tab">Certificat</a>
+        </li>
+        {% endif %}
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="lecons" role="tabpanel">
+            <!-- Section Leçons -->
+            <section>
+                <h2>Les leçons du cours</h2>
+                <ul>
+                    {% for lesson in course.lessons %}
+                        <li>{{ lesson.title }}</li>
+                    {% else %}
+                        <li>Aucune leçon disponible.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+
+        {% if allCompleted %}
+        <div class="tab-pane fade" id="certificat" role="tabpanel">
+            <section>
+                <h2>Certificat de fin de cours</h2>
+                <p>Voici votre certificat de fin de cours ! 🎓</p>
+                <!-- Tu peux intégrer un lien de téléchargement PDF ici si besoin -->
+            </section>
+        </div>
+        {% endif %}
+    </div>
+
+    <a href="{{ path('app_user_lesson') }}" class="btn btn-secondary mt-4">← Retour aux leçons</a>
+
+
+    <ul class="nav nav-tabs mt-4" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" href="#lecons" data-bs-toggle="tab" role="tab">Leçons</a>
+    </li>
+    {% if allCompleted %}
+    <li class="nav-item">
+        <a class="nav-link" href="#certificat" data-bs-toggle="tab" role="tab">Certificat</a>
+    </li>
+    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="#certifications" data-bs-toggle="tab" role="tab">Certifications</a>
+    </li>
+</ul>
+
+<div class="tab-content mt-3">
+    <div class="tab-pane fade show active" id="lecons" role="tabpanel">
+        {# contenu des leçons #}
+    </div>
+
+    {% if allCompleted %}
+    <div class="tab-pane fade" id="certificat" role="tabpanel">
+        <p>Voici votre certificat de fin de cours ! </p>
+    </div>
+    {% endif %}
+
+    <div class="tab-pane fade" id="certifications" role="tabpanel">
+        <h3>Certifications disponibles</h3>
+        <p>Liste des certifications ou examens complémentaires pour ce cours.</p>
+        {# Tu peux ici afficher un tableau, un lien d'examen, ou autre #}
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+
+

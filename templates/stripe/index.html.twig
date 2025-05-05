@@ -1,11 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Paiement validé{% endblock %}
+{% block title %}Paiement réussi{% endblock %}
 
 {% block body %}
-
-
-<div class="container">
-    <h1>Votre paiement a été effectué avec succès</h1>
+<div class="container mt-5">
+    <div class="alert alert-success">
+        🎉 Merci pour votre achat ! Votre paiement a bien été confirmé.
+    </div>
+     <a href="{{ path('app_lesson') }}" class="btn btn-primary">Commencer les leçons</a>
 </div>
 {% endblock %}
+

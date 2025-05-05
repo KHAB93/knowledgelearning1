@@ -21,7 +21,9 @@ final class HomePageController extends AbstractController
 {
     
     $products = $productRepository->findBy([
-        'id' => [33, 36, 41] 
+        'id' =>  [1, 6, 9, 13]
+
+       
     ]);
 
     return $this->render('homePage/index.html.twig', [

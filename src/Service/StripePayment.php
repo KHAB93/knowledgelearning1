@@ -17,7 +17,8 @@ class StripePayment
 
     public function startPayment($cart,$shippingCost){
         
-        $cartProducts = $cart['cart'];
+        $cartProducts = $cart['items'];
+
         $products = [
             [
             'qte'=> 1,

@@ -1,84 +1,64 @@
-# Stubborn E-commerce - Projet Symfony
+# Symfony Knowledge Learning
 
-Ce projet est un site e-commerce développé en Symfony pour la marque fictive **Stubborn**, spécialisée dans les sweat-shirts.
+Un projet Symfony pour gérer des entités comme les utilisateurs, les commandes (orders), les villes, etc. Utilise Doctrine ORM et les fixtures pour la génération de données de test.
 
-## Table des matières
-- [Présentation](#présentation)
-- [Fonctionnalités](#fonctionnalités)
-- [Technologies utilisées](#technologies-utilisées)
-- [Installation](#installation)
-- [Utilisation](#utilisation)
-- [Tests](#tests)
-- [Auteur](#auteur)
+## 🚀 Installation
 
-## Présentation
-Ce projet est réalisé dans le cadre d'un devoir.  
-Il s'agit d'un site e-commerce permettant d'acheter des sweats, de gérer un panier, et de procéder à un paiement test via **Stripe**.
+Clone le dépôt et installe les dépendances :
 
-## Fonctionnalités
-- Authentification avec validation d'email
-- Gestion des utilisateurs (clients et administrateurs)
-- Liste de produits avec filtres par prix
-- Page de détail produit et ajout au panier
-- Panier avec suppression d’articles et paiement via Stripe (mode bac à sable)
-- Back-office pour ajouter, modifier, supprimer des sweats
-- Tests unitaires sur le panier et l'achat
 
-## Technologies utilisées
-- Symfony 7.2.5
-- PHP 8.4.6
-- MySQL / Doctrine
-- Composer
-- Bootstrap (ou Tailwind) pour le front-end
-- Stripe API
-- PHPUnit (tests)
+git clone https://github.com/ton-utilisateur/symfony-knowledgelearning1.git
+cd symfony-knowledgelearning1
+composer install
 
-## Installation
 
-1. Cloner ce dépôt :
-    
-    git clone https://github.com/KHAB93/symfony-project4-stubborn.git
-    
 
-2. Installer les dépendances PHP :
-   composer install
-    npm install (si tu utilises Webpack encore)
-    npm run build
 
-3. Configurer la base de données dans `.env` :
-    ```
-    DATABASE_URL="mysql://root:@127.0.0.1:3306/symfony_project4?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
-    ```
+## ⚙️ Configuration de la base de données
 
-4. Créer la base de données :
-    
-    php bin/console doctrine:database:create
-    php bin/console doctrine:migrations:migrate
-    php bin/console doctrine:fixtures:load
-    
+Crée la base de données et exécute les migrations :
 
-5. Lancer le serveur local :
-    symfony server:start
+```bash
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+```
 
-6. Créer un compte Stripe et récupérer les clés API de test.
+## 🧪 Chargement des fixtures
 
-7. Configurer Stripe dans `.env` :
+Pour charger les données de test (utilisateurs, villes, commandes, etc.) :
 
-    STRIPE_SECRET_KEY=sk_test_...
-    STRIPE_PUBLIC_KEY=pk_test_...
+```bash
+php bin/console doctrine:fixtures:load
+```
 
-Ces clés doivent être emplacées par des clés valides obtenues via le site de Stripe.
+> ⚠️ Cela effacera toutes les données existantes dans la base de données.
 
-## Utilisation
+## 🧭 Lancer le serveur
 
-- Accéder au site via `http://localhost:8000`
-- S'inscrire et confirmer son adresse email.
-- Explorer les produits, ajouter au panier, effectuer un paiement test.
-- Se connecter en tant qu'administrateur pour gérer les sweats.
 
-## Tests
+symfony server:start
 
-Lancer les tests PHPUnit :
-php bin/phpunit
+
+Accède ensuite à l'application via [http://localhost:8000](http://localhost:8000)
+
+## 🧱 Structure des Fixtures
+
+- `UserFixtures` : crée des utilisateurs.
+- `CityFixtures` : crée des villes.
+- `OrderFixtures` : crée des commandes et relie les utilisateurs et les villes.
+
+Assure-toi que les références (`addReference()`) sont définies dans les bonnes classes et que l’ordre de chargement respecte les dépendances.
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues !
+
+1. Fork ce dépôt
+2. Crée ta branche (`git checkout -b feature/ma-feature`)
+3. Commit tes modifications (`git commit -am 'Ajout d'une nouvelle fonctionnalité'`)
+4. Push vers la branche (`git push origin feature/ma-feature`)
+5. Ouvre une pull request
+
+
 
 

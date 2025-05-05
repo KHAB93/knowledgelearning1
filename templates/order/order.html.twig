@@ -52,7 +52,7 @@
                 </tr>
             {% endfor %}
         </table>
-        <h5>Frais de livraison : {{ order.city.shippingCost }}Eur</h5>
+        
         <h5>Total à payer : {{ order.totalPrice }}Eur</h5>
 
         <a class= "btn btn-outline-success" href="{{ path('app_bill',{'id':order.id}) }}">Imprimer la facture</a>

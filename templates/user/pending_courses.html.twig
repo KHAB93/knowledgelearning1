@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes cours{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Mes cours</h1>
+
+        <div class="row">
+            {% for data in coursesData %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ data.course.title }}</h5>
+                            <p class="card-text">{{ data.course.description|length > 100 ? data.course.description[:100] ~ '...' : data.course.description }}</p>
+                            <p><strong>Prix :</strong> {{ data.course.price }} €</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ path('course_show', { id: data.course.id }) }}" class="btn btn-primary">Voir le cours</a>
+
+                            {% if data.completed %}
+                                <!-- Si le cours est terminé, permettre la validation -->
+                                <a href="{{ path('app_validate_course', { id: data.course.id }) }}" class="btn btn-success">
+                                    Valider ce cours
+                                </a>
+                            {% else %}
+                                <!-- Si le cours n'est pas terminé, afficher un message -->
+                                <p>Veuillez terminer toutes les leçons pour valider ce cours.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>Aucun cours trouvé.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+
+

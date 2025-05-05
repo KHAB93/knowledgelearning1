@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Leçons{% endblock %}
+
+{% block body %}
+    <h1>Mes Leçons</h1>
+
+ 
+    <ul>
+        {% for course in courses %}
+            <li>
+                <h3>{{ course.title }}</h3>
+                <p>{{ course.description }}</p>
+                <a href="{{ path('user_courses') }}">Voir mes cours achetés</a>
+
+
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
+

@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Entity\Course; 
 use App\Entity\Product;
 use App\Entity\SubCategory;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -24,7 +25,7 @@ class ProductType extends AbstractType
                 'required'=>false,
                 "constraints"=>[
                     new File([
-                        "maxSize"=>"1024K",
+                        "maxSize"=>"1024k",
                         "mimeTypes"=>[
                             'image/jpg',
                             'image/png',
@@ -37,15 +38,19 @@ class ProductType extends AbstractType
             ])
             ->add('description')
             ->add('price')
-            ->add('size')
-            ->add('stock', IntegerType::class) 
             ->add('subCategories', EntityType::class, [
                 'class' => SubCategory::class,
                 'choice_label' => 'name',
                 'multiple' => true,
             ])
-           
-       
+
+            
+            ->add('course', EntityType::class, [
+                'class' => Course::class,  
+                'choice_label' => 'title',  
+                'placeholder' => 'Choisir un cours',  
+                'required' => true,  
+            ])
         ;
     }
 
