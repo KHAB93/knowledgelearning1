@@ -74,42 +74,28 @@ h1, h2 {
     background-color: #f8d7da;
 }
 
-/* RESPONSIVE : améliorer l'ergonomie sur mobile */
+/* ===== Mobile seulement ===== */
 @media (max-width: 767.98px) {
-    .table {
-        font-size: 0.85rem;
-    }
-
-    .table td,
-    .table th {
-        padding: 0.5rem 0.3rem;
-    }
-
-    .table td a.text-danger {
-        display: block;
-        width: 100%;
-        text-align: center;
-        padding: 0.6rem;
-        font-size: 1rem;
-        margin-top: 0.3rem;
-        background-color: #dc3545;
-        color: white !important;
-        border-radius: 4px;
-    }
-
-    .table td a.text-danger:hover {
-        background-color: #bb2d3b;
-    }
+  /* Styles pour smartphones */
+  .row > [class*="col-"] {
+    flex: 0 0 100% !important;
+    max-width: 100%   !important;
+  }
 }
 
-/* 👉 RESPONSIVE tablette / desktop */
-@media (min-width: 768px) {
-    .login-form {
-        width: 300px;
-    }
-
-    .security-form {
-        flex-direction: row;
-        text-align: left;
-    }
+/* ===== Desktop seulement ===== */
+@media (min-width: 992px) {
+  /* Styles pour écrans d’ordinateurs */
+  .login-form {
+    width: 300px;
+  }
+  .security-form {
+    flex-direction: row;
+    text-align: left;
+  }
 }
+
+
+
+
+
