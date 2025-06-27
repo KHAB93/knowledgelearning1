@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')] // <- important : échappé avec des backticks
+#[ORM\Table(name: '`user`')] 
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -56,19 +56,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
 
-     // Champ pour activer ou non l'utilisateur
+      // Field to enable or disable user
      #[ORM\Column(type: 'boolean')]
      private bool $isActive = false;
  
-     // Champ pour stocker le jeton d'activation
+     // Field for storing activation token
      #[ORM\Column(nullable: true)]
      private ?string $activationToken = null;
 
-
-    
-     
-
-    // ✅ RELATION AVEC ORDER
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Order::class, orphanRemoval: true)]
     private Collection $orders;
 
@@ -227,13 +222,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
    
 
-    // Getter pour l'activationToken
+    
     public function getActivationToken(): ?string
     {
         return $this->activationToken;
     }
 
-    // Setter pour l'activationToken
+    
     public function setActivationToken(?string $activationToken): self
     {
         $this->activationToken = $activationToken;

@@ -11,11 +11,11 @@ class Cart
 
     public function getCart(SessionInterface $session): array
     {
-        // Récupère le panier depuis la session, ou un tableau vide si aucun panier n'est trouvé
+         // Retrieves the basket from the session, or an empty array if no basket is found
         $cart = $session->get('cart', []);
         $cartWithData = [];
 
-        // Remplir les données du panier avec les produits et les quantités
+        // Fill basket data with products and quantities
         foreach ($cart as $id => $quantity) {
             $product = $this->productRepository->find($id);
             if ($product) { 
@@ -26,14 +26,14 @@ class Cart
             }
         }
 
-        // Calcul du total du panier
+        // Calculate basket total
         $total = array_sum(array_map(function ($item) {
             return $item['product']->getPrice() * $item['quantity'];
         }, $cartWithData));
 
-        // Retourne un tableau avec les items et le total
+        // Returns a table with items and total
         return [
-            'items' => $cartWithData, // Utiliser 'items' ici pour correspondre à ton code
+            'items' => $cartWithData, // Use 'items' here to match your code
             'total' => $total
         ];
     }

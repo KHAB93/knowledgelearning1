@@ -52,28 +52,28 @@ class LessonController extends AbstractController
         $user = $this->getUser();
 
         if (!$user) {
-            // Rediriger vers la connexion si l'utilisateur n'est pas connecté
+            // Redirect to login if user is not logged in
             return $this->redirectToRoute('app_login');
         }
 
-        // Récupère toutes les commandes de l'utilisateur
+        // Retrieves all user commands
         $orders = $orderRepository->findBy(['user' => $user]);
 
-        // Récupérer les cours depuis les produits des commandes
+       // Retrieve prices from order products
         $courses = [];
 
         foreach ($orders as $order) {
             foreach ($order->getOrderProducts() as $orderProduct) {
-                // Récupérer le produit associé à l'OrderProduct
+                // Retrieve the product associated with the OrderProduct
                 $product = $orderProduct->getProduct();
                 dump($product);
 
-                // Récupérer le cours associé à ce produit
+                // Retrieve the course associated with this product
                 $course = $product ? $product->getCourse() : null;
                 dump($course);
 
                 if ($course && !in_array($course, $courses, true)) {
-                    // Si un cours est trouvé et qu'il n'est pas déjà dans la liste, l'ajouter
+                    // If a course is found and is not already in the list, add it.
                     $courses[] = $course;
                 }
             }
@@ -85,16 +85,18 @@ class LessonController extends AbstractController
     }
 
     #[Route('/lessons/{id}', name: 'app_lesson_show')]
-public function show(
-    int $id,
-    CourseRepository $courseRepository,
-    OrderRepository $orderRepository,
-    EntityManagerInterface $em
-): Response {
-    $user = $this->getUser();
-    if (!$user) {
-        return $this->redirectToRoute('app_login');
-    }
+        public function show(
+        int $id,
+        CourseRepository $courseRepository,
+        OrderRepository $orderRepository,
+        EntityManagerInterface $em
+
+    ): Response {
+
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
 
     $course = $courseRepository->find($id);
 
@@ -102,7 +104,7 @@ public function show(
         throw $this->createNotFoundException('Cours non trouvé');
     }
 
-    // ✅ Vérifie si l'utilisateur a bien acheté ce cours
+    // Checks if the user has purchased this course
     $hasPurchased = false;
     foreach ($user->getOrders() as $order) {
         foreach ($order->getOrderItems() as $orderItem) {
@@ -118,7 +120,7 @@ public function show(
         return $this->redirectToRoute('app_products');
     }
 
-    // ✅ Vérifie si toutes les leçons sont terminées
+     // Checks if all lessons have been completed
     $lessons = $course->getLessons();
     $completedLessons = $em->getRepository(LessonCompletion::class)->findBy([
         'user' => $user,
@@ -134,7 +136,7 @@ public function show(
         }
     }
 
-    // ✅ Si toutes les leçons sont terminées, marquer le cours comme terminé
+   //  If all lessons have been completed, mark the course as finished
     if ($allCompleted) {
         $existing = $em->getRepository(CourseCompletion::class)->findOneBy([
             'user' => $user,
@@ -152,7 +154,7 @@ public function show(
 
     return $this->render('lesson/show.html.twig', [
         'course' => $course,
-        'allCompleted' => $allCompleted, // 👈 pour Twig
+        'allCompleted' => $allCompleted, 
     ]);
 }
 
@@ -167,23 +169,23 @@ public function show(
         }
     
         
-        // ✅ Récupérer toutes les commandes, sans filtrer le statut
+        //  Retrieve all orders, without filtering status
         $orders = $orderRepository->findBy([
             'user' => $user,
         ]);
 
-        // Vérifie si des commandes ont été trouvées
-        dump($orders);  // Cela va afficher les commandes dans ton navigateur pour te permettre de vérifier
+       // Checks whether commands have been found
+        dump($orders);  // This will display the commands in your browser so you can check
        
         
-        // Extraire les cours associés aux produits des commandes
+        // Extract prices associated with order products
         $courses = [];
-        $orderIds = [];  // On va stocker les IDs de commande ici
+        $orderIds = [];  // We'll store the order IDs here
 
         
         foreach ($orders as $order) {
 
-             // Ajouter l'ID de la commande à la liste des IDs
+             // Add order ID to ID list
             $orderIds[] = $order->getId();
 
             foreach ($order->getOrderItems() as $orderItem) {
@@ -192,25 +194,21 @@ public function show(
             
     
                 if ($course && !in_array($course, $courses, true)) {
-                    // Ajouter le cours à la liste s'il n'est pas déjà présent
+                    // Add course to list if not already present
                     $courses[] = $course;
                 }
-
             }
-
-
         }
 
-       
         dump($courses);
-        // Passer les cours à la vue
+        // Switch courses to view
         return $this->render('user/pending_courses.html.twig', [
             'courses' => $courses,
-            'orderIds' => $orderIds,  // Passer les IDs des commandes à la vue
+            'orderIds' => $orderIds,  // Pass order IDs to the view
         ]);
     }
 
-    // 1. Marquer une leçon comme terminée
+    // 1. mark a lesson as completed
     #[Route('/lecon/{id}/terminer', name: 'app_finish_lesson')]
     public function finishLesson(
         Lesson $lesson,
@@ -218,14 +216,14 @@ public function show(
     ): Response {
         $user = $this->getUser();
 
-        // Vérifie si la leçon est déjà marquée comme terminée
+        // Checks whether the lesson has already been marked as completed
         $existing = $em->getRepository(LessonCompletion::class)->findOneBy([
             'user' => $user,
             'lesson' => $lesson
         ]);
 
         if (!$existing) {
-            // Crée une nouvelle entrée pour la leçon terminée
+             // Creates a new entry for the completed lesson
             $completion = new LessonCompletion();
             $completion->setUser($user);
             $completion->setLesson($lesson);
@@ -237,11 +235,11 @@ public function show(
             $this->addFlash('info', 'Leçon déjà terminée.');
         }
 
-        // Redirige l'utilisateur vers la page de ses leçons
+         // Redirects the user to the lessons page
         return $this->redirectToRoute('app_user_lessons');
     }
 
-    // 2. Vérifier les leçons terminées pour chaque cours
+    // 2. Check completed lessons for each course
     #[Route('/user/lessons', name: 'app_user_lessons')]
 
     public function userLessons(
@@ -255,7 +253,7 @@ public function show(
             throw $this->createAccessDeniedException('Vous devez être connecté pour accéder à vos leçons.');
         }
 
-        // Récupérer les commandes de l'utilisateur
+        // Retrieve user commands
         $orders = $user->getOrders();
         $courses = [];
 
@@ -277,15 +275,15 @@ public function show(
             $lessons = $course->getLessons();
             $lessonIds = array_map(fn($lesson) => $lesson->getId(), $lessons->toArray());
 
-            // Trouver les leçons déjà complétées
+           // Find lessons already completed
             $completedLessons = $lessonCompletionRepository->findBy([
                 'user' => $user,
             ]);
 
-            // Récupérer les IDs des leçons complétées
+            // Retrieve IDs for completed lessons
             $completedLessonIds = array_map(fn($c) => $c->getLesson()->getId(), $completedLessons);
 
-            // Vérifier si toutes les leçons du cours sont terminées
+           // Check that all lessons have been completed
             $allCompleted = count($lessonIds) > 0 && empty(array_diff($lessonIds, $completedLessonIds));
 
             $coursesData[] = [
@@ -294,13 +292,13 @@ public function show(
             ];
         }
 
-        // Passer les données à la vue
+       // Pass data to view
         return $this->render('user/pending_courses.html.twig', [
             'coursesData' => $coursesData,
         ]);
     }
 
-    // 3. Valider un cours
+     // 3. validate a course
     #[Route('/cours/{id}/valider', name: 'app_validate_course')]
     public function validateCourse(
         Course $course,
@@ -308,7 +306,7 @@ public function show(
     ): Response {
         $user = $this->getUser();
 
-        // Vérifier si toutes les leçons du cours sont terminées
+        // Check that all lessons have been completed
         $lessons = $course->getLessons();
         $completedLessons = $em->getRepository(LessonCompletion::class)
             ->findBy(['user' => $user]);
@@ -322,7 +320,7 @@ public function show(
             }
         }
 
-        // Vérifier si le cours est déjà validé
+        // Check if the course has already been validated
         $alreadyCompleted = $em->getRepository(CourseCompletion::class)->findOneBy([
             'user' => $user,
             'course' => $course
@@ -339,10 +337,6 @@ public function show(
         $this->addFlash('success', 'Cours validé avec succès !');
         return $this->redirectToRoute('app_user_lessons');
     }
-
-    
-
-
 
 }
 

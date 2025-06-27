@@ -24,12 +24,10 @@ final class ProductController extends AbstractController
 {
     private $courseRepository;
 
-    // Injection du repository CourseRepository dans le constructeur
     public function __construct(CourseRepository $courseRepository)
     {
         $this->courseRepository = $courseRepository;
     }
-
 
     #[Route(name: 'app_product_index', methods: ['GET'])]
     public function index(ProductRepository $productRepository): Response
@@ -58,12 +56,12 @@ final class ProductController extends AbstractController
 
             }
 
-            // Associer un cours au produit (si nécessaire)
-            $courseId = $form->get('course')->getData(); // Récupérer l'ID du cours
+            
+            $courseId = $form->get('course')->getData(); // Retrieve course ID
             if ($courseId) {
-            $course = $courseRepository->find($courseId); // Trouver le cours
+            $course = $courseRepository->find($courseId); // Find the course
             if ($course) {
-                $product->setCourse($course); // Associer le cours
+                $product->setCourse($course);  // Link course
             }
         }
             
@@ -116,12 +114,13 @@ final class ProductController extends AbstractController
 
             }
 
-            // Mettre à jour la relation avec le cours (si nécessaire)
-            $courseId = $form->get('course')->getData(); // Récupérer l'ID du cours
+           
+
+            $courseId = $form->get('course')->getData(); 
             if ($courseId) {
-            $course = $courseRepository->find($courseId); // Trouver le cours
+            $course = $courseRepository->find($courseId); 
             if ($course) {
-                $product->setCourse($course); // Associer le cours
+                $product->setCourse($course); 
             }
         }
 
@@ -142,6 +141,7 @@ final class ProductController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
             // Remove related AddProductHistory records if necessary
+            
             foreach ($product->getAddProductHistories() as $history) {
                 $entityManager->remove($history);
             }

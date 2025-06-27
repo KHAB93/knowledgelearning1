@@ -12,36 +12,32 @@ use App\Service\Cart;
 final class CartController extends AbstractController
 {
     public function __construct(private readonly ProductRepository $productRepository){
-
     }
 
     #[Route('/cart', name: 'app_cart', methods: ['GET'])]
     public function index(SessionInterface $session, Cart $cart): Response
     {
-        // Récupérer les données du panier avec la clé 'items'
+        // Retrieve basket data with the 'items' key
         $data = $cart->getCart($session);
         
-        // Accéder aux produits du panier via la clé 'items' au lieu de 'cart'
+        // Access basket products using the 'items' key instead of 'cart'.
         $cartProducts = $data['items'];
         $product = [];
         
-        // Traitement des produits dans le panier
+       // Processing products in the basket
         foreach ($cartProducts as $value) {
-            // Logique pour manipuler chaque produit
-            // Par exemple, tu peux ajouter chaque produit à la liste $product
+            // Logic for handling each product
+            // For example, you can add each product to the $product list
             $product[] = $value['product'];
         }
     
-        // Retourner la réponse
+        // Return answer
         return $this->render('cart/index.html.twig', [
-            'items' => $data['items'],  // Utiliser 'items' ici
-            'total' => $data['total'],  // Total des produits dans le panier
+            'items' => $data['items'],  // Use 'items' here
+            'total' => $data['total'],  // Total products in basket
         ]);
     }
     
-
-
-
     #[Route('/cart/add/{id}/', name: 'app_cart_new', methods: ['GET'])]
     public function addToCart(int $id, SessionInterface $session): Response
     {

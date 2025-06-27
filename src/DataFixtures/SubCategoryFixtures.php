@@ -12,7 +12,7 @@ class SubCategoryFixtures extends Fixture
     {
         $sub = new SubCategory();
         $sub->setName('Cursus d’initiation à la guitare');
-        $sub->setCategory($this->getReference('category_3')); // Musique
+        $sub->setCategory($this->getReference('category_3')); 
         $manager->persist($sub);
 
         $this->addReference('sub_category_0', $sub);

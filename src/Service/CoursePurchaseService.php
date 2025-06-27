@@ -16,7 +16,7 @@ class CoursePurchaseService
         $this->entityManager = $entityManager;
     }
 
-    // Sauvegarde l'achat du cours par l'utilisateur
+    // Save course purchase by user
     public function saveCoursePurchase(User $user, Course $course): void
     {
         $purchase = new UserCoursePurchase();
@@ -28,7 +28,7 @@ class CoursePurchaseService
         $this->entityManager->flush();
     }
 
-    // Récupère les cours achetés par un utilisateur
+    // Retrieves courses purchased by a user
     public function getPurchasedCourses(User $user): array
     {
         return $this->entityManager
